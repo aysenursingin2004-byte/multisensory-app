@@ -1,0 +1,23 @@
+# Gradle
+.gradle/
+build/
+*.jar
+*.war
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+
+# Application
+application-local.properties
+application-dev.properties
+application-prod.properties
+
+# Logs
+logs/
+*.log
