@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Joke Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            animation: slideDown 0.6s ease;
+        }
+
+        .subtitle {
+            color: #999;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+        }
+
+        .joke-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            animation: fadeIn 0.6s ease;
+        }
+
+        .joke-text {
+            font-size: 1.4rem;
+            color: #333;
+            font-weight: 600;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .punchline {
+            font-size: 1.2rem;
+            color: #667eea;
+            font-weight: 700;
+            margin-top: 15px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .joke-type {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #eee;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .joke-text {
+                font-size: 1.1rem;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>😂 Joke Generator</h1>
+        <p class="subtitle">Hergün yeni bir şaka! 🎉</p>
+
+        <div id="error-message" class="error" style="display: none;"></div>
+
+        <div class="joke-box" id="joke-box">
+            <p class="joke-text">Bir şaka yüklemek için butona tıklayın...</p>
+        </div>
+
+        <div class="buttons">
+            <button class="btn-primary" onclick="getJoke()">🎲 Yeni Şaka Getir</button>
+            <button class="btn-secondary" onclick="shareJoke()">📢 Paylaş</button>
+            <button class="btn-secondary" onclick="toggleCategory()">🏷️ Kategori Değiştir</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="joke-count">0</div>
+                <div class="stat-label">Şaka Sayısı</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="category-display">Any</div>
+                <div class="stat-label">Kategori</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let jokeCount = 0;
+        let currentJoke = null;
+        let currentCategory = 'any';
+        const categories = ['any', 'general', 'knock-knock', 'programming'];
+        let categoryIndex = 0;
+
+        // API: Official Joke API
+        const API_URL = 'https://official-joke-api.appspot.com/random_joke';
+        const CATEGORY_API = 'https://official-joke-api.appspot.com/jokes/{category}/random';
+
+        async function getJoke() {
+            const jokeBox = document.getElementById('joke-box');
+            const errorMessage = document.getElementById('error-message');
+
+            // Loading göstergesi
+            jokeBox.innerHTML = '<div class="loading"></div> Şaka yükleniyor...';
+            errorMessage.style.display = 'none';
+
+            try {
+                let url = API_URL;
+                if (currentCategory !== 'any') {
+                    url = CATEGORY_API.replace('{category}', currentCategory);
+                }
+
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error('API hatası: ' + response.status);
+                }
+
+                const data = await response.json();
+                currentJoke = data;
+                jokeCount++;
+
+                // Şakayı göster
+                displayJoke(data);
+                updateStats();
+
+            } catch (error) {
+                console.error('Hata:', error);
+                jokeBox.innerHTML = '<p class="joke-text">❌ Şaka yüklenemedi. Lütfen tekrar deneyin.</p>';
+                errorMessage.textContent = 'Hata: ' + error.message;
+                errorMessage.style.display = 'block';
+            }
+        }
+
+        function displayJoke(joke) {
+            const jokeBox = document.getElementById('joke-box');
+            
+            let html = '';
+            
+            // Kategori göster
+            if (joke.type) {
+                html += `<div class="joke-type">${joke.type.toUpperCase()}</div>`;
+            }
+
+            // Şaka setup
+            html += `<p class="joke-text">${joke.setup}</p>`;
+
+            // Punchline
+            if (joke.punchline) {
+                html += `<p class="punchline">${joke.punchline}</p>`;
+            }
+
+            jokeBox.innerHTML = html;
+        }
+
+        function updateStats() {
+            document.getElementById('joke-count').textContent = jokeCount;
+            document.getElementById('category-display').textContent = 
+                currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1);
+        }
+
+        function toggleCategory() {
+            categoryIndex = (categoryIndex + 1) % categories.length;
+            currentCategory = categories[categoryIndex];
+            updateStats();
+            getJoke();
+        }
+
+        function shareJoke() {
+            if (!currentJoke) {
+                alert('Önce bir şaka yükleyin!');
+                return;
+            }
+
+            const text = `${currentJoke.setup}\n\n${currentJoke.punchline}`;
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ Şaka panoya kopyalandı!');
+            }).catch(err => {
+                console.error('Kopyalama hatası:', err);
+                alert('Şaka:\n' + text);
+            });
+        }
+
+        // Sayfa yüklendiğinde ilk şakayı getir
+        window.addEventListener('load', () => {
+            getJoke();
+        });
+
+        // Klavye kısayolları
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                getJoke();
+            }
+        });
+    </script>
+</body>
+</html>
